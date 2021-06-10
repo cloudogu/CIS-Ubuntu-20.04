@@ -31,9 +31,13 @@
 		run bash -c "dpkg -s ntp | grep -E '(Status:|not installed)'"
 		[[ "${lines[0]}" == *"dpkg-query: package 'ntp' is not installed and no information is available"* ]]
 
+		run bash -c "systemctl is-enabled systemd-timesyncd"
+    [[ "$output" == *"masked"* ]]
+
 		run bash -c "grep -E \"^(server|pool)\" /etc/chrony/chrony.conf"
 		[ "$status" -eq 0 ]
 		[[ "$output" == "server "* ]] || [[ "$output" == "pool "* ]]
+
 		run bash -c "ps -ef | grep chronyd"
 		[ "$status" -eq 0 ]
 		[[ "$output" == "_chrony "*" /usr/sbin/chronyd"* ]]
