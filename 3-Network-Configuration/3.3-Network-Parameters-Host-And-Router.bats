@@ -2,34 +2,36 @@
 
 load IPv6-helper
 
+grep "net\.ipv4\.conf\.all\.accept_source_route" /etc/sysctl.conf /etc/sysctl.d/*
+
 @test "3.3.1 Ensure source routed packets are not accepted (Automated)" {
     # tests for ipv4
-    run sysctl net.ipv4.conf.all.accept_source_route
+    run bash -c "sysctl net.ipv4.conf.all.accept_source_route"
     [ "$status" -eq 0 ]
     [ "$output" = "net.ipv4.conf.all.accept_source_route = 0" ]
-    run sysctl net.ipv4.conf.default.accept_source_route
+    run bash -c "sysctl net.ipv4.conf.default.accept_source_route"
     [ "$status" -eq 0 ]
     [ "$output" = "net.ipv4.conf.default.accept_source_route = 0" ]
     run bash -c "grep \"net\.ipv4\.conf\.all\.accept_source_route\" /etc/sysctl.conf /etc/sysctl.d/*"
     [ "$status" -eq 0 ]
     # Check if the desired output line is active in any of the conf files
-    local CONF_FILE_CORRECT=0
+    local CONF_ALL_FILE_CORRECT=0
     while IFS= read -r line; do
         if [[ "$line" == *":net.ipv4.conf.all.accept_source_route = 0" ]]; then
-            CONF_FILE_CORRECT=1
+            CONF_ALL_FILE_CORRECT=1
         fi
     done <<< "$output"
-    [ $CONF_FILE_CORRECT -eq 1 ]
+    [ $CONF_ALL_FILE_CORRECT -eq 1 ]
     run bash -c "grep "net\.ipv4\.conf\.default\.accept_source_route" /etc/sysctl.conf /etc/sysctl.d/*"
     [ "$status" -eq 0 ]
     # Check if the desired output line is active in any of the conf files
-    local CONF_FILE_CORRECT=0
+    local CONF_DEFAULT_FILE_CORRECT=0
     while IFS= read -r line; do
         if [[ "$line" == *":net.ipv4.conf.default.accept_source_route = 0" ]]; then
-            CONF_FILE_CORRECT=1
+            CONF_DEFAULT_FILE_CORRECT=1
         fi
     done <<< "$output"
-    [ $CONF_FILE_CORRECT -eq 1 ]
+    [ $CONF_DEFAULT_FILE_CORRECT -eq 1 ]
 
     run check_ip_v6
     [ $status -eq 0 ]

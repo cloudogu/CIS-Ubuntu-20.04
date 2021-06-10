@@ -51,12 +51,15 @@ load IPv6-helper
 # 3.5.2 Configure nftables
 
 @test "3.5.2.1 Ensure nftables is installed (Automated)" {
-    [[ $(dpkg -s nftables | grep 'Status: install') == "Status: install ok installed" ]]
+    run bash -c "dpkg -s nftables | grep 'Status: install'"
+    [[ "$output" == "Status: install ok installed" ]]
 }
 
 @test "3.5.2.2 Ensure ufw is uninstalled or disabled with nftables (Automated)" {
-    [[ $(dpkg -s ufw | grep 'dpkg-query') == *"dpkg-query: package 'ufw' is not installed and no information is available"* ]] || \
-    [[ $(ufw status | grep 'Status') == "Status: inactive" ]]
+    run bash -c "dpkg -s ufw | grep 'dpkg-query'"
+    if [[ ! "$output" == *"dpkg-query: package 'ufw' is not installed and no information is available"* ]]; then
+        [[ $(ufw status | grep 'Status') == "Status: inactive" ]]
+    fi
 }
 
 @test "3.5.2.3 Ensure iptables are flushed with nftables (Manual)" {
@@ -76,13 +79,13 @@ load IPv6-helper
 @test "3.5.2.5 Ensure nftables base chains exist (Automated)" {
     run bash -c "nft list ruleset | grep 'hook input'"
     [ "$status" -eq 0 ]
-    [[ "$output" == *"type filter hook input priority 0;"* ]]
+    [[ "$output" == *"type filter hook input priority filter;"* ]]
     run bash -c "nft list ruleset | grep 'hook forward'"
     [ "$status" -eq 0 ]
-    [[ "$output" == *"type filter hook forward priority 0;"* ]]
+    [[ "$output" == *"type filter hook forward priority filter;"* ]]
     run bash -c "nft list ruleset | grep 'hook output'"
     [ "$status" -eq 0 ]
-    [[ "$output" == *"type filter hook output priority 0;"* ]]
+    [[ "$output" == *"type filter hook output priority filter;"* ]]
 }
 
 @test "3.5.2.6 Ensure nftables loopback traffic is configured (Automated)" {
@@ -119,17 +122,18 @@ load IPv6-helper
 @test "3.5.2.8 Ensure nftables default deny firewall policy (Automated)" {
     run bash -c "nft list ruleset | grep 'hook input'"
     [ "$status" -eq 0 ]
-    [[ "$output" == *"type filter hook input priority 0; policy drop;"* ]]
+    [[ "$output" == *"type filter hook input priority filter; policy drop;"* ]]
     run bash -c "nft list ruleset | grep 'hook forward'"
     [ "$status" -eq 0 ]
-    [[ "$output" == *"type filter hook forward priority 0; policy drop;"* ]]
+    [[ "$output" == *"type filter hook forward priority filter; policy drop;"* ]]
     run bash -c "nft list ruleset | grep 'hook output'"
     [ "$status" -eq 0 ]
-    [[ "$output" == *"type filter hook output priority 0; policy drop;"* ]]
+    [[ "$output" == *"type filter hook output priority filter; policy drop;"* ]]
 }
 
 @test "3.5.2.9 Ensure nftables service is enabled (Automated)" {
-    [[ $(systemctl is-enabled nftables) == "enabled" ]]
+    run bash -c "systemctl is-enabled nftables"
+    [[ "$output" == "enabled" ]]
 }
 
 @test "3.5.2.10 Ensure nftables rules are permanent (Automated)" {
@@ -150,13 +154,15 @@ load IPv6-helper
 
 @test "3.5.3.1.2 Ensure nftables is not installed with iptables (Automated)" {
     run bash -c "dpkg -s nftables | grep 'dpkg-query'"
-    [ $status -eq 0 ]
+    [ $status -eq 1 ]
     [[ "$output" == *"dpkg-query: package 'nftables' is not installed"* ]]
 }
 
 @test "3.5.3.1.3 Ensure ufw is uninstalled or disabled with iptables (Automated)" {
-    [[ $(dpkg-query -s ufw) == *"package 'ufw' is not installed and no information is available"* ]] || \
-    [[ $(ufw status | grep 'Status') == "Status: inactive" ]]
+    run bash -c "dpkg -s ufw | grep 'dpkg-query'"
+    if [[ ! "$output" == *"dpkg-query: package 'ufw' is not installed and no information is available"* ]]; then
+        [[ $(ufw status | grep 'Status') == "Status: inactive" ]]
+    fi
 }
 
 ## 3.5.3.2 Configure IPv4 iptables
