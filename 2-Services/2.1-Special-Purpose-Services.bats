@@ -19,7 +19,6 @@
 		run bash -c "systemctl is-enabled systemd-timesyncd.service"
 		[[ "$output" = "enabled" ]]
 
-
 		run bash -c "timedatectl status"
 		[[ "${lines[4]}" == *"System clock synchronized: yes"* ]]
 		[[ "${lines[5]}" == *"NTP service: active"* ]]
@@ -50,7 +49,7 @@
 		run bash -c "systemctl is-enabled systemd-timesyncd.service"
 		[[ "$output" = "masked" ]]
 
-		run bash -c "grep "^restrict" /etc/ntp.conf"
+		run bash -c "grep \"^restrict\" /etc/ntp.conf"
 		[ "$status" -eq 0 ]
 		[[ "$output" == *"restrict -4 default "*"kod"* ]]
 		[[ "$output" == *"restrict -4 default "*"nomodify"* ]]
@@ -66,29 +65,25 @@
 		run bash -c "grep -E \"^(server|pool)\" /etc/ntp.conf"
 		[ "$status" -eq 0 ]
 		[[ "$output" == "server "* ]] || [[ "$output" == "pool "* ]]
-		run bash -c "grep "RUNASUSER=ntp" /etc/init.d/ntp"
+		run bash -c "grep \"RUNASUSER=ntp\" /etc/init.d/ntp"
 		[ "$status" -eq 0 ]
 		[[ "$output" == "RUNASUSER=ntp" ]]
 }
 
 @test "2.1.2 Ensure X Window System is not installed (Automated)" {
-			run bash -c "dpkg -l xserver-xorg*"
+		run bash -c "dpkg -l xserver-xorg*"
 		[ "$status" -eq 1 ]
 		[[ "$output" == *"no packages found matching xserver-xorg*" ]]
 }
 
 @test "2.1.3 Ensure Avahi Server is not installed (Automated)" {
-		run bash -c "systemctl is-enabled avahi-daemon"
-		if [ "$status" -eq 0 ]; then
-				[[ "$output" != "enabled" ]]
-		fi
+		run bash -c "dpkg -s avahi-daemon | grep -E '(Status:|not installed)'"
+    [[ "$output" == *"dpkg-query: package 'avahi-daemon' is not installed and no information is available"* ]]
 }
 
 @test "2.1.4 Ensure CUPS is not installed (Automated)" {
-      run bash -c "systemctl is-enabled cups"
-    if [ "$status" -eq 0 ]; then
-        [[ "$output" != "enabled" ]]
-    fi
+    run bash -c "dpkg -s cups | grep -E '(Status:|not installed)'"
+    [[ "$output" == *"dpkg-query: package 'cups' is not installed and no information is available"* ]]
 }
 
 @test "2.1.5 Ensure DHCP Server is not installed (Automated)" {
