@@ -66,7 +66,7 @@
 @test "1.1.2 Ensure /tmp is configured (Automated)" {
     run bash -c "findmnt -n /tmp"
     [ "$status" -eq 0 ]
-    [[ "$output" = *" on /tmp "* ]]
+    [[ "$output" == "/tmp "* ]]
     local FSTAB=$(grep -E '\s/tmp\s' /etc/fstab | grep -E -v '^\s*#')
     local TMPMOUNT=$(systemctl is-enabled tmp.mount)
     [[ "$FSTAB" != "" ]] || [ "$TMPMOUNT" = "enabled" ]
@@ -181,7 +181,7 @@
 }
 
 @test "1.1.22 Ensure sticky bit is set on all world-writable directories (Automated)" {
-    run bash -c "df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type d \( -perm -0002 -a ! -perm -1000 \) 2>/dev/null"
+    run bash -c 'df --local -P | awk '\''{if (NR!=1) print $6}'\'' | xargs -I '\''{}'\'' find '\''{}'\'' -xdev -type d \( -perm -0002 -a ! -perm -1000 \) 2>/dev/null'
     [ "$status" -eq 0 ]
     [ "$output" = "" ]
 }
