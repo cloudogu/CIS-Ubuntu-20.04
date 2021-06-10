@@ -1,17 +1,20 @@
 #!/usr/bin/env bats
 
 @test "6.2.1 Ensure accounts in /etc/passwd use shadowed passwords (Automated)" {
-  run bash -c "awk -F: '($2 != "x" ) { print $1 " is not set to shadowed passwords "}' /etc/passwd"
+  run "$BATS_TEST_DIRNAME"/6.2.1.sh
   [ "$status" -eq 0 ] # returns nothing
+  [[ "$output" == "" ]]
 }
 
 @test "6.2.2 Ensure password fields are not empty (Automated)" {
-  run bash -c "awk -F: '(\$2 == "" ) { print \$1 " does not have a password "}' /etc/shadow"
+  # must be run as root, otherwise files that are not accessible will be erroneously specified as a finding.
+  run sudo "$BATS_TEST_DIRNAME"/6.2.2.sh
   [ "$status" -eq 0 ] # returns nothing
+  [[ "$output" == "" ]]
 }
 
 @test "6.2.3 Ensure all groups in /etc/passwd exist in /etc/group (Automated)" {
-  run "$BATS_TEST_DIRNAME"/6.2.3.sh
+  run sudo "$BATS_TEST_DIRNAME"/6.2.3.sh
   [ "$status" -eq 0 ]
   [[ "$output" == "" ]]
 }
