@@ -3,9 +3,9 @@
 @test "1.4.1 Ensure permissions on bootloader config are not overridden (Automated)" {
     run bash -c 'grep -E '\''^\s*chmod\s+[0-7][0-7][0-7]\s+\$\{grub_cfg\}\.new'\'' -A 1 -B1 /usr/sbin/grub-mkconfig'
     [ "$status" -eq 0 ]
-    [[ "${lines[0]} == 'if [ "x${grub_cfg}" != "x" ]; then' ]]
-    [[ "${lines[1]} == '  chmod 400 ${grub_cfg}.new || true' ]]
-    [[ "${lines[2]} == *"fi" ]]
+    [[ "${lines[0]}" == 'if [ "x${grub_cfg}" != "x" ]; then' ]]
+    [[ "${lines[1]}" == '  chmod 400 ${grub_cfg}.new || true' ]]
+    [[ "${lines[2]}" == *"fi" ]]
 }
 
 @test "1.4.2 Ensure bootloader password is set (Automated)" {
