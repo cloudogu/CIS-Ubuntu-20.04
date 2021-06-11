@@ -2,12 +2,12 @@
 
 @test "1.7.1 Ensure message of the day is configured properly (Automated)" {
     run bash -c 'grep -Eis "(\\\v|\\\r|\\\m|\\\s|$(grep '\''^ID='\'' /etc/os-release | cut -d= -f2 | sed -e '\''s/"//g'\''))" /etc/motd'
-    [ "$status" -ne 0 ]
+    [ "$status" -eq 1 ]
 }
 
 @test "1.7.2 Ensure local login warning banner is configured properly (Automated)" {
     run bash -c 'grep -Eis "(\\\v|\\\r|\\\m|\\\s|$(grep '\''^ID='\'' /etc/os-release | cut -d= -f2 | sed -e '\''s/"//g'\''))" /etc/issue'
-    [ "$status" -ne 0 ]
+    [ "$status" -eq 1 ]
 }
 
 @test "1.7.3 Ensure remote login warning banner is configured properly (Automated)" {
