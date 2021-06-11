@@ -27,5 +27,6 @@
 
 @test "1.4.4 Ensure authentication required for single user mode (Automated)" {
     run bash -c 'grep -Eq '\''^root:\$[0-9]'\'' /etc/shadow || echo "root is locked"'
-    [ "$output" = "" ]
+    [ "$status" -eq 0 ]
+    [[ "$output" == "" ]]
 }
