@@ -1,9 +1,10 @@
 #!/usr/bin/env bats
 
 load 3.1-helper
+load 3.1.2
 
 @test "3.1.1 Disable IPv6 (Manual)" {
-    run test_3_1_1_ipv6_grub
+    run check_ipv6_is_disabled_via_grub_config
     if [ "$status" -eq 1 ]; then
         run bash -c "sysctl net.ipv6.conf.all.disable_ipv6"
         [ "$output" = "net.ipv6.conf.all.disable_ipv6 = 1" ]
