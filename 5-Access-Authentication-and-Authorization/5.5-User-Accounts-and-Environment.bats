@@ -6,15 +6,11 @@ load 5.5.5-helper
 @test "5.5.1.1 Ensure minimum days between password changes is configured (Automated)" {
     run bash -c "grep PASS_MIN_DAYS /etc/login.defs | grep --invert-match \"\#\""
     [ "$status" -eq 0 ]
-    [[ "$output" != "" ]]
     MINDAYS=(${output//PASS_MIN_DAYS/ }) # get the number from the string
     [[ "$MINDAYS" -gt 0 ]]
-    run bash -c "grep -E ^[^:]+:[^\!*] /etc/shadow | cut -d: -f1,4"
+    run bash -c "awk -F : '(/^[^:]+:[^!*]/ && \$4 < 1){print \$1 \" \" \$4}' /etc/shadow"
     [ "$status" -eq 0 ]
-    while IFS=: read -r line; do
-        MINDAYS=(${line//:/ }) # get the number from the string
-        [[ "${MINDAYS[1]}" -gt 0 ]]
-    done <<< "$output"
+    [[ "$output" == "" ]]
 }
 
 @test "5.5.1.2 Ensure password expiration is 365 days or less (Automated)" {
@@ -23,12 +19,9 @@ load 5.5.5-helper
     [[ "$output" != "" ]]
     MAXDAYS=(${output//PASS_MAX_DAYS/ }) # get the number from the string
     [[ "$MAXDAYS" -lt 366 ]]
-    run bash -c "grep -E '^[^:]+:[^!*]' /etc/shadow | cut -d: -f1,5"
+    run bash -c "awk -F: '(/^[^:]+:[^!*]/ && (\$5>365||\$5~/([0-1]|-1)/)){print \$1 \" \" \$5}' /etc/shadow"
     [ "$status" -eq 0 ]
-    while IFS=: read -r line; do
-        MAXDAYS=(${line//:/ }) # get the number from the string
-        [[ "${MAXDAYS[1]}" -lt 366 ]]
-    done <<< "$output"
+    [[ "$output" == "" ]]
 }
 
 @test "5.5.1.3 Ensure password expiration warning days is 7 or more (Automated)" {
@@ -37,12 +30,9 @@ load 5.5.5-helper
     [[ "$output" != "" ]]
     WARNAGE=(${output//PASS_WARN_AGE/ }) # get the number from the string
     [[ "$WARNAGE" -gt 6 ]]
-    run bash -c "grep -E ^[^:]+:[^\!*] /etc/shadow | cut -d: -f1,6"
+    run bash -c " awk -F: '(/^[^:]+:[^!*]/ && \$6<7){print \$1 \" \" \$6}' /etc/shadow"
     [ "$status" -eq 0 ]
-    while IFS=: read -r line; do
-        WARNAGE=(${line//:/ }) # get the number from the string
-        [[ "${WARNAGE[1]}" -gt 6 ]]
-    done <<< "$output"
+    [[ "$output" = "" ]]
 }
 
 @test "5.5.1.4 Ensure inactive password lock is 30 days or less (Automated)" {
@@ -52,13 +42,9 @@ load 5.5.5-helper
     INACTIVE=(${output//INACTIVE=/ }) # get the number from the string
     [[ "$INACTIVE" != -1 ]]
     [[ "$INACTIVE" -lt 31 ]]
-    run bash -c "grep -E ^[^:]+:[^\!*] /etc/shadow | cut -d: -f1,7"
+    run bash -c " awk -F: '(/^[^:]+:[^!*]/ && (\$7~/(-1)/ || \$7>30)){print \$1 \" \" \$7}' /etc/shadow"
     [ "$status" -eq 0 ]
-    while IFS=: read -r line; do
-        INACTIVE=(${line//:/ }) # get the number from the string
-        [[ "${INACTIVE[1]}" != "" ]]
-        [[ "${INACTIVE[1]}" -lt 31 ]]
-    done <<< "$output"
+    [[ "$output" = "" ]]
 }
 
 @test "5.5.1.5 Ensure all users last password change date is in the past (Automated)" {
@@ -67,9 +53,9 @@ load 5.5.5-helper
 }
 
 @test "5.5.2 Ensure system accounts are secured (Automated)" {
-    run bash -c '\''awk -F: '\''($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $1!~/^\+/ && $3<'\''"$(awk '\''/^\s*UID_MIN/{print $2}'\'' /etc/login.defs)"'\'' && $7!="'\''"$(which nologin)"'\''" && $7!="/bin/false") {print}'\'' /etc/passwd'
+    run bash -c "awk -F: '\$1!~/(root|sync|shutdown|halt|^\+)/ && \$3<'\"\$(awk '/^\s*UID_MIN/{print \$2}' /etc/login.defs)\"' && \$7!~/((\/usr)?\/sbin\/nologin)/ && \$7!~/(\/bin)?\/false/ {print}' /etc/passwd"
     [[ "$output" == "" ]]
-    run bash -c 'awk -F: '\''($1!="root" && $1!~/^\+/ && $3<'\''"$(awk '\''/^\s*UID_MIN/{print $2}'\'' /etc/login.defs)"'\'') {print $1}'\'' /etc/passwd | xargs -I '\''{}'\'' passwd -S '\''{}'\'' | awk '\''($2!="L" && $2!="LK") {print $1}'\'''
+    run bash -c "awk -F: '(\$1!~/(root|^\+)/ && \$3<'\"\$(awk '/^\s*UID_MIN/{print \$2}' /etc/login.defs)\"') {print \$1}' /etc/passwd | xargs -I '{}' passwd -S '{}' | awk '(\$2!~/LK?/) {print \$1}'"
     [[ "$output" == "" ]]
 }
 
@@ -88,7 +74,6 @@ load 5.5.5-helper
 
 @test "5.5.5 Ensure default user shell timeout is 900 seconds or less (Automated)" {
     run check_timeout_settings
-    echo "INFO: output -> $output"
     [ "$status" -eq 0 ]
     [[ "$output" == *"PASSED"*"TMOUT is configured in: "* ]]
 }
@@ -98,12 +83,14 @@ load 5.5.5-helper
 }
 
 @test "5.7 Ensure access to the su command is restricted (Automated)" {
-    run bash -c "grep \"auth required pam_wheel.so use_uid group=\" /etc/pam.d/su"
+    run bash -c "grep pam_wheel.so /etc/pam.d/su"
     [ "$status" -eq 0 ]
-    [[ "$output" == "auth required pam_wheel.so use_uid group="* ]]
-    local GROUP=(${output//auth required pam_wheel.so use_uid group=/ }) # get the group name from the string
+    [[ "$output" == *"auth required pam_wheel.so use_uid group="* ]]
+    filtered_output=$(echo "$output" | grep 'auth required pam_wheel.so use_uid group=')
+    local GROUP=(${filtered_output//auth required pam_wheel.so use_uid group=/ }) # get the group name from the string
     [[ "$GROUP" != "" ]]
     run bash -c "grep $GROUP /etc/group"
+    echo "INFO: op -> $output"
     [ "$status" -eq 0 ]
     [[ "$output" == "$GROUP:"*":"*":" ]]
 }
