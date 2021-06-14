@@ -22,12 +22,26 @@ load IPv6-helper
 @test "3.5.1.4 Ensure ufw loopback traffic is configured (Automated)" {
     run bash -c "ufw status verbose"
     [ "$status" -eq 0 ]
-    [[ "$output" == *"Anywhere on lo"*"ALLOW IN"*"Anywhere"* ]]
-    [[ "$output" == *"Anywhere"*"DENY IN"*"127.0.0.0/8"* ]]
-    [[ "$output" == *"Anywhere (v6) on lo"*"ALLOW IN"*"Anywhere (v6)"* ]]
-    [[ "$output" == *"Anywhere (v6)"*"DENY IN"*"::1"* ]]
-    [[ "$output" == *"Anywhere"*"ALLOW OUT"*"Anywhere on lo"* ]]
-    [[ "$output" == *"Anywhere (v6)"*"ALLOW OUT"*"Anywhere (v6) on lo"* ]]
+    local check1=0 check2=0 check3=0 check4=0 check5=0 check6=0
+    for index in ${!lines[*]}
+    do
+        current_line="${lines[$index]}"
+        case "$current_line" in
+            "Anywhere on lo"*"ALLOW IN"*"Anywhere"*) check1=1 ;;
+            "Anywhere"*"DENY IN"*"127.0.0.0/8"*) check2=1 ;;
+            "Anywhere (v6) on lo"*"ALLOW IN"*"Anywhere (v6)"*) check3=1 ;;
+            "Anywhere (v6)"*"DENY IN"*"::1"*) check4=1 ;;
+            "Anywhere"*"ALLOW OUT"*"Anywhere on lo"*) check5=1 ;;
+            "Anywhere (v6)"*"ALLOW OUT"*"Anywhere (v6) on lo"*) check6=1 ;;
+            *) ;;
+        esac
+    done
+    [ $check1 -eq 1 ]
+    [ $check2 -eq 1 ]
+    [ $check3 -eq 1 ]
+    [ $check4 -eq 1 ]
+    [ $check5 -eq 1 ]
+    [ $check6 -eq 1 ]
 }
 
 @test "3.5.1.5 Ensure ufw outbound connections are configured (Manual)" {
