@@ -15,8 +15,6 @@ load 3.1.2
         run bash -c "grep -E '^\s*net\.ipv6\.conf\.(all|default)\.disable_ipv6\s*=\s*1\b(\s+#.*)?$' /etc/sysctl.conf /etc/sysctl.d/*.conf | cut -d: -f2"
         [ "$output" = *"net.ipv6.conf.all.disable_ipv6 = 1"* ]
         [ "$output" = *"net.ipv6.conf.default.disable_ipv6 = 1"* ]
-
-        echo "INFO: ipv6 is not disabled via sysctl configuration"
     fi
 }
 

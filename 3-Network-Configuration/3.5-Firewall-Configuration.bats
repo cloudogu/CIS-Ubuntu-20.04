@@ -160,7 +160,6 @@ load IPv6-helper
 @test "3.5.3.1.1 Ensure iptables packages are installed (Automated)" {
     run bash -c "apt list iptables iptables-persistent | grep installed"
     [ $status -eq 0 ]
-    echo "INFO: output -> $output"
     [[ "$output" =~ iptables[^-].*\[(installed(,automatic)*)\] ]]
     [[ "$output" =~ iptables-persistent.*\[(installed(,automatic)*)\] ]]
 }
