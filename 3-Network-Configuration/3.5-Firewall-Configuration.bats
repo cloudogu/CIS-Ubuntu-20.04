@@ -9,7 +9,7 @@ load IPv6-helper
 }
 
 @test "3.5.1.2 Ensure iptables-persistent is not installed with ufw (Automated)" {
-    run dpkg-query -s iptables-persistent
+    run bash -c "dpkg-query -s iptables-persistent"
     [ $status -eq 1 ]
     [[ "$output" == *"package 'iptables-persistent' is not installed and no information is available"* ]]
 }
@@ -44,20 +44,19 @@ load IPv6-helper
     [[ "$output" == *"deny (incoming)"* || "$output" == *"reject (incoming)"* ]]
     [[ "$output" == *"deny (outgoing)"* || "$output" == *"reject (outgoing)"* ]]
     [[ "$output" == *"deny (routed)"* \
-     || "$output" == *"reject (routed)"* \
-     || "$output" == *"disabled (routed)"* ]]
+     || "$output" == *"reject (routed)"* ]]
 }
 
 # 3.5.2 Configure nftables
 
 @test "3.5.2.1 Ensure nftables is installed (Automated)" {
-    run bash -c "dpkg -s nftables | grep 'Status: install'"
+    run bash -c "dpkg-query -s nftables | grep 'Status: install ok installed'"
     [[ "$output" == "Status: install ok installed" ]]
 }
 
 @test "3.5.2.2 Ensure ufw is uninstalled or disabled with nftables (Automated)" {
-    run bash -c "dpkg -s ufw | grep 'dpkg-query'"
-    if [[ ! "$output" == *"dpkg-query: package 'ufw' is not installed and no information is available"* ]]; then
+    run bash -c "dpkg-query -s ufw | grep 'Status: install ok installed'"
+    if [[ ! "$output" == *"package 'ufw' is not installed and no information is available"* ]]; then
         [[ $(ufw status | grep 'Status') == "Status: inactive" ]]
     fi
 }
