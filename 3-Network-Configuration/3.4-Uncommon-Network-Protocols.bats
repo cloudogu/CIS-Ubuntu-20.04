@@ -10,7 +10,7 @@
 }
 
 @test "3.4.2 Ensure SCTP is disabled (Automated)" {
-    run bash -c "modprobe -n -v sctp"
+    run bash -c "modprobe -n -v sctp | grep -E '(sctp|install)'"
     [ "$status" -eq 0 ]
     [ "$output" = "install /bin/true " ]
     run bash -c "lsmod | grep sctp"
@@ -28,7 +28,9 @@
 }
 
 @test "3.4.4 Ensure TIPC is disabled (Automated)" {
-    (modprobe -n -v tipc | grep "install /bin/true")
+    run bash -c "modprobe -n -v tipc | grep -E '(tipc|install)'"
+    [ "$status" -eq 0 ]
+    [ "$output" = "install /bin/true " ]
     run bash -c "lsmod | grep tipc"
     [ "$status" -ne 0 ]
     [ "$output" = "" ]
