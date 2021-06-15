@@ -5,7 +5,7 @@ This repository holds automated tests for the CIS Ubuntu Linux 20.04 LTS Benchma
 ## Setup
 
 - Install bats on the target system: https://bats-core.readthedocs.io/en/latest/installation.html
-    - On Ubuntu, simply use `sudo apt install bats`
+   - On Ubuntu, simply use `sudo apt install bats`
 - Copy this repository to the target system
 
 ## Run the tests
