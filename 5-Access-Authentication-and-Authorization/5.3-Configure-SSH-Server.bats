@@ -200,7 +200,10 @@
 @test "5.3.21 Ensure SSH MaxStartups is configured (Automated)" {
     run bash -c "sshd -T -C user=root -C host=\"$(hostname)\" -C addr=\"$(grep $(hostname) /etc/hosts | awk '{print $1}')\" | grep -i maxstartups"
     [ "$status" -eq 0 ]
-    [[ "$output" == "maxstartups 10:30:60" ]]
+    MAXSTARTUPS=(${output//maxstartups/})
+    # check all three values delimitted by ':''
+    run bash -c "echo \"$MAXSTARTUPS\" | awk -F \":\" '\$1 <= 10 && \$2 <= 30 && \$3 <= 60 {print \"ok\"}'"
+    [[ "$output" == "ok" ]]
     run bash -c "grep -Eis '^\s*maxstartups\s+(((1[1-9]|[1-9][0-9][0-9]+):([0-9]+):([0-9]+))|(([0-9]+):(3[1-9]|[4-9][0-9]|[1-9][0-9][0-9]+):([0-9]+))|(([0-9]+):([0-9]+):(6[1-9]|[7-9][0-9]|[1-9][0-9][0-9]+)))' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf"
     [ "$status" -ne 0 ]
     [[ "$output" == "" ]]
