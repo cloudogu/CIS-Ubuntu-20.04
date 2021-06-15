@@ -3,6 +3,7 @@
 @test "1.8.1 Ensure GNOME Display Manager is removed (Manual)" {
     run bash -c "dpkg -s gdm3 | grep -E '(Status:|not installed)'"
     [ "$status" -eq 1 ]
+    [[ "$output" == *"dpkg-query: package 'gdm3' is not installed and no information is available"* ]]
 }
 
 @test "1.8.2 Ensure GDM login banner is configured (Automated)" {
