@@ -11,8 +11,7 @@ do
           echo
           "$fileperm" | cut -c9
         )" != "-" ]; then
-          echo "User: \"$user\" file: \"$file\" has permissions:
-\"$fileperm\""
+          echo "User: \"$user\" file: \"$file\" has permissions: \"$fileperm\""
         fi
       fi
     done

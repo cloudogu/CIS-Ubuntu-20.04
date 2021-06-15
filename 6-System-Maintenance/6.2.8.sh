@@ -7,12 +7,9 @@ do
     file="$dir/.netrc"
     if [ ! -h "$file" ] && [ -f "$file" ]; then
       if stat -L -c "%A" "$file" | cut -c4-10 | grep -Eq '[^-]+'; then
-        echo "FAILED: User: \"$user\" file: \"$file\" exists with
-permissions: \"$(stat -L -c "%a" "$file")\", remove file or excessive
-permissions"
+        echo "FAILED: User: \"$user\" file: \"$file\" exists with permissions: \"$(stat -L -c "%a" "$file")\", remove file or excessive permissions"
       else
-        echo "WARNING: User: \"$user\" file: \"$file\" exists with
-permissions: \"$(stat -L -c "%a" "$file")\", remove file unless required"
+        echo "WARNING: User: \"$user\" file: \"$file\" exists with permissions: \"$(stat -L -c "%a" "$file")\", remove file unless required"
       fi
     fi
   fi

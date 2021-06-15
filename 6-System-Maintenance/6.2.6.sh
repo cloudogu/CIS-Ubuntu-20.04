@@ -12,8 +12,7 @@ do
       echo
       "$dirperm" | cut -c10
     )" != "-" ]; then
-      echo "User: \"$user\" home directory: \"$dir\" has permissions:
-\"$(stat -L -c "%a" "$dir")\""
+      echo "User: \"$user\" home directory: \"$dir\" has permissions: \"$(stat -L -c "%a" "$dir")\""
     fi
   fi
 
