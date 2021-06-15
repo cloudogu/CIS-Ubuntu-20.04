@@ -6,7 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Tests for chapter 1
 - Tests for chapter 2
 - Tests for chapter 3
 - Tests for chapter 4
-- tests for chapter 5
+- Tests for chapter 5
+- Tests for chapter 6
