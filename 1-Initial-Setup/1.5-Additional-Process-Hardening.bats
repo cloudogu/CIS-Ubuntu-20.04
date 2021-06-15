@@ -17,6 +17,7 @@
 @test "1.5.3 Ensure prelink is disabled (Automated)" {
     run bash -c "dpkg -s prelink | grep -E '(Status:|not installed)'"
     [ "$status" -eq 1 ]
+    [[ "$output" == *"dpkg-query: package 'prelink' is not installed and no information is available"* ]]
 }
 
 @test "1.5.4 Ensure core dumps are restricted (Automated)" {
