@@ -5,7 +5,7 @@
     [ "$status" -eq 0 ]
     [[ "$output" = *"Uid:"*"("*"0/"*"root"* ]]
     [[ "$output" = *"Gid:"*"("*"0/"*"root"* ]]
-    [[ "$output" = *"Access:"*"(0"[0-7]"00"* ]]
+    [[ "$output" = *"Access:"*"(0"[0-6]"00"* ]]
 }
 
 @test "5.3.2 Ensure permissions on SSH private host key files are configured (Automated)" {
@@ -13,7 +13,7 @@
     while IFS= read -r line; do
         [[ "$line" = *"Uid:"*"("*"0/"*"root"* ]]
         [[ "$line" = *"Gid:"*"("*"0/"*"root"* ]]
-        [[ "$line" = "Access:"*"(0"[0-7]"00"* ]]
+        [[ "$line" = "Access:"*"(0"[0-6]"00"* ]]
     done <<< "$SSH_CONFIG"
 }
 
@@ -144,11 +144,12 @@
 
 @test "5.3.16 Ensure SSH Idle Timeout Interval is configured (Automated)" {
     local INTERVAL=$(sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep clientaliveinterval)
-    INTERVAL=(${INTERVAL// / })
+    INTERVAL=(${INTERVAL// / }) # get number from string
     [[ "${INTERVAL[1]}" -gt 1 ]]
     [[ "${INTERVAL[1]}" -lt 301 ]]
     local MAX=$(sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep clientalivecountmax)
     MAX=(${MAX// / })
+    [[ "${MAX[1]}" -gt 0 ]]
     [[ "${MAX[1]}" -lt 4 ]]
 
     run bash -c "grep -Eis '^\s*clientaliveinterval\s+(0|3[0-9][1-9]|[4-9][0-9][0-9]|[1-9][0-9][0-9][0-9]+|[6-9]m|[1-9][0-9]+m)\b' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf"
@@ -161,7 +162,7 @@
 
 @test "5.3.17 Ensure SSH LoginGraceTime is set to one minute or less (Automated)" {
     local LOGINGRACETIME=$(sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep logingracetime)
-    LOGINGRACETIME=(${LOGINGRACETIME// / })
+    LOGINGRACETIME=(${LOGINGRACETIME// / }) # get number from string
     [[ "${LOGINGRACETIME[1]}" -gt 0 ]]
     [[ "${LOGINGRACETIME[1]}" -lt 61 ]]
     run bash -c "grep -Eis '^\s*LoginGraceTime\s+(0|6[1-9]|[7-9][0-9]|[1-9][0-9][0-9]+|[^1]m)' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf"
@@ -199,14 +200,17 @@
 @test "5.3.21 Ensure SSH MaxStartups is configured (Automated)" {
     run bash -c "sshd -T -C user=root -C host=\"$(hostname)\" -C addr=\"$(grep $(hostname) /etc/hosts | awk '{print $1}')\" | grep -i maxstartups"
     [ "$status" -eq 0 ]
+    [[ "$output" == "maxstartups 10:30:60" ]]
     run bash -c "grep -Eis '^\s*maxstartups\s+(((1[1-9]|[1-9][0-9][0-9]+):([0-9]+):([0-9]+))|(([0-9]+):(3[1-9]|[4-9][0-9]|[1-9][0-9][0-9]+):([0-9]+))|(([0-9]+):([0-9]+):(6[1-9]|[7-9][0-9]|[1-9][0-9][0-9]+)))' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf"
+    [ "$status" -ne 0 ]
     [[ "$output" == "" ]]
 }
 
 @test "5.3.22 Ensure SSH MaxSessions is limited (Automated)" {
     local MAXSESSIONS=$(sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep -i maxsessions)
-    MAXSESSIONS=(${MAXSESSIONS// / })
+    MAXSESSIONS=(${MAXSESSIONS// / }) # get number from string
     [[ "${MAXSESSIONS[1]}" -lt 11 ]]
     run bash -c "grep -Eis '^\s*MaxSessions\s+(1[1-9]|[2-9][0-9]|[1-9][0-9][0-9]+)' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf"
+    [ "$status" -ne 0 ]
     [[ "$output" == "" ]]
 }

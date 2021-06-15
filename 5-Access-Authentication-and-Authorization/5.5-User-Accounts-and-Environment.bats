@@ -60,7 +60,7 @@ load 5.5.5-helper
 }
 
 @test "5.5.3 Ensure default group for the root account is GID 0 (Automated)" {
-    run bash -c "grep "^root:" /etc/passwd | cut -f4 -d:"
+    run bash -c "grep \"^root:\" /etc/passwd | cut -f4 -d:"
     [ "$status" -eq 0 ]
     [[ "$output" == "0" ]]
 }
@@ -90,7 +90,6 @@ load 5.5.5-helper
     local GROUP=(${filtered_output//auth required pam_wheel.so use_uid group=/ }) # get the group name from the string
     [[ "$GROUP" != "" ]]
     run bash -c "grep $GROUP /etc/group"
-    echo "INFO: op -> $output"
     [ "$status" -eq 0 ]
     [[ "$output" == "$GROUP:"*":"*":" ]]
 }
