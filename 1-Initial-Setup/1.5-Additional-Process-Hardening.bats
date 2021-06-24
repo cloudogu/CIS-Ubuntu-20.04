@@ -29,7 +29,4 @@
 
     run bash -c "grep \"fs.suid_dumpable\" /etc/sysctl.conf /etc/sysctl.d/*"
     [[ "$output" == *"fs.suid_dumpable = 0" ]]
-
-    run bash -c "systemctl is-enabled coredump.service"
-    [[ "$output" == *"enabled"* ]] || [[ "$output" == *"masked"* ]] || [[ "$output" == *"disabled"* ]]
 }
