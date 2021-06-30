@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Remove unnecessary test in 1.5.4
 
+### Fixed
+- Fix newline mistakes in script 6.2.6
+
 ## [1.0.0] - 2021-06-15
 ### Added
 - Tests for chapter 1
