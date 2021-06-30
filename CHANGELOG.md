@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Remove unnecessary test in 1.5.4
+- Remove debug output from test script 6.2.5
 
 ## [1.0.0] - 2021-06-15
 ### Added
