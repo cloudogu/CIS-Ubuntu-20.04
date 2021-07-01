@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Remove unnecessary test in 1.5.4
-- some tests of chapter 4.1 now take into account that the value of UID_MIN can be customized
+- Some tests of chapter 4.1 now take into account that the value of UID_MIN can be customized
+
+### Fixed
+- Inverted return status check of test 4.4 to match the correct status code returned from grep if no line was found
 
 ## [1.0.0] - 2021-06-15
 ### Added
