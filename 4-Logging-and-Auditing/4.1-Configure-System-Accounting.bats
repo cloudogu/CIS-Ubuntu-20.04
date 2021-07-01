@@ -177,8 +177,6 @@ load 4.1-helper
     run bash -c "grep perm_mod /etc/audit/rules.d/*.rules"
     [ "$status" -eq 0 ]
 
-    # check for custom UID_MIN
-    # if it's not equal to 1000 it has to be used for the audit and remediation
     UID_MIN=$(get_uid_min)
 
     for current_line in "${lines[*]}"
@@ -209,8 +207,6 @@ load 4.1-helper
     run bash -c "grep access /etc/audit/rules.d/*.rules"
     [ "$status" -eq 0 ]
 
-    # check for custom UID_MIN
-    # if it's not equal to 1000 it has to be used for the audit and remediation
     UID_MIN=$(get_uid_min)
 
     for current_line in "${lines[*]}"
@@ -239,8 +235,6 @@ load 4.1-helper
     run bash -c "grep mounts /etc/audit/rules.d/*.rules"
     [ "$status" -eq 0 ]
 
-    # check for custom UID_MIN
-    # if it's not equal to 1000 it has to be used for the audit and remediation
     UID_MIN=$(get_uid_min)
 
     for current_line in "${lines[*]}"
@@ -261,8 +255,6 @@ load 4.1-helper
     run bash -c "grep delete /etc/audit/rules.d/*.rules"
     [ "$status" -eq 0 ]
 
-    # check for custom UID_MIN
-    # if it's not equal to 1000 it has to be used for the audit and remediation
     UID_MIN=$(get_uid_min)
 
     for current_line in "${lines[*]}"
@@ -300,8 +292,6 @@ load 4.1-helper
     run bash -c "grep actions /etc/audit/rules.d/*.rules"
     [ "$status" -eq 0 ]
 
-    # check for custom UID_MIN
-    # if it's not equal to 1000 it has to be used for the audit and remediation
     UID_MIN=$(get_uid_min)
 
     for current_line in "${lines[*]}"
