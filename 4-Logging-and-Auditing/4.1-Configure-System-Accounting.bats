@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load 4.1-helper
+
 @test "4.1.1.1 Ensure auditd is installed (Automated)" {
     run bash -c "dpkg -s auditd audispd-plugins"
     [ "$status" -eq 0 ]
@@ -49,13 +51,13 @@
     [ "$status" -eq 0 ]
     for current_line in "${lines[*]}"
     do
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change"* ]] || 
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change"* ]] ||
         [[ "$current_line" == *"-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change"* ]] ||
         [[ "$current_line" == *"-a always,exit -F arch=b64 -S clock_settime -k time-change"* ]] ||
         [[ "$current_line" == *"-a always,exit -F arch=b32 -S clock_settime -k time-change"* ]] ||
         [[ "$current_line" == *"-w /etc/localtime -p wa -k time-change"* ]]
     done
-    
+
     run bash -c "auditctl -l | grep time-change"
     [ "$status" -eq 0 ]
     for current_line in "${lines[*]}"
@@ -174,48 +176,54 @@
 @test "4.1.9 Ensure discretionary access control permission modification events are collected (Automated)" {
     run bash -c "grep perm_mod /etc/audit/rules.d/*.rules"
     [ "$status" -eq 0 ]
+
+    UID_MIN=$(get_uid_min)
+
     for current_line in "${lines[*]}"
     do
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_mod"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_mod"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -F auid>=1000 -F auid!=4294967295 -k perm_mod"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=1000 -F auid!=4294967295 -k perm_mod"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod"* ]]
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=${UID_MIN} -F auid!=4294967295 -k perm_mod"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=${UID_MIN} -F auid!=4294967295 -k perm_mod"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -F auid>=${UID_MIN} -F auid!=4294967295 -k perm_mod"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=${UID_MIN} -F auid!=4294967295 -k perm_mod"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=${UID_MIN} -F auid!=4294967295 -k perm_mod"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=${UID_MIN} -F auid!=4294967295 -k perm_mod"* ]]
     done
     run bash -c "auditctl -l | grep perm_mod"
     [ "$status" -eq 0 ]
     for current_line in "${lines[*]}"
     do
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=-1"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -F auid>=${UID_MIN} -F auid!=-1"* ]] ||
         [[ "$current_line" == *"-F key=perm_mod"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=-1"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -F auid>=${UID_MIN} -F auid!=-1"* ]] ||
         [[ "$current_line" == *"-F key=perm_mod"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -S chown,fchown,lchown,fchownat -F auid>=1000 -F auid!=-1 -F key=perm_mod"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b32 -S lchown,fchown,chown,fchownat -F auid>=1000 -F auid!=-1 -F key=perm_mod"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -F auid>=1000 -F auid!=-1 -F key=perm_mod"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b32 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -F auid>=1000 -F auid!=-1 -F key=perm_mod"* ]]
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -S chown,fchown,lchown,fchownat -F auid>=${UID_MIN} -F auid!=-1 -F key=perm_mod"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b32 -S lchown,fchown,chown,fchownat -F auid>=${UID_MIN} -F auid!=-1 -F key=perm_mod"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -F auid>=${UID_MIN} -F auid!=-1 -F key=perm_mod"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b32 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -F auid>=${UID_MIN} -F auid!=-1 -F key=perm_mod"* ]]
     done
 }
 
 @test "4.1.10 Ensure unsuccessful unauthorized file access attempts are collected (Automated)" {
     run bash -c "grep access /etc/audit/rules.d/*.rules"
     [ "$status" -eq 0 ]
+
+    UID_MIN=$(get_uid_min)
+
     for current_line in "${lines[*]}"
     do
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access"* ]]
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=${UID_MIN} -F auid!=4294967295 -k access"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=${UID_MIN} -F auid!=4294967295 -k access"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=${UID_MIN} -F auid!=4294967295 -k access"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=${UID_MIN} -F auid!=4294967295 -k access"* ]]
     done
     run bash -c "auditctl -l | grep access"
     [ "$status" -eq 0 ]
     for current_line in "${lines[*]}"
     do
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat -F exit=-EACCES -F auid>=1000 -F auid!=-1 -F key=access"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b32 -S open,creat,truncate,ftruncate,openat -F exit=-EACCES -F auid>=1000 -F auid!=-1 -F key=access"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat -F exit=-EPERM -F auid>=1000 -F auid!=-1 -F key=access"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b32 -S open,creat,truncate,ftruncate,openat -F exit=-EPERM -F auid>=1000 -F auid!=-1 -F key=access"* ]]
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat -F exit=-EACCES -F auid>=${UID_MIN} -F auid!=-1 -F key=access"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b32 -S open,creat,truncate,ftruncate,openat -F exit=-EACCES -F auid>=${UID_MIN} -F auid!=-1 -F key=access"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat -F exit=-EPERM -F auid>=${UID_MIN} -F auid!=-1 -F key=access"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b32 -S open,creat,truncate,ftruncate,openat -F exit=-EPERM -F auid>=${UID_MIN} -F auid!=-1 -F key=access"* ]]
     done
 }
 
@@ -226,34 +234,40 @@
 @test "4.1.12 Ensure successful file system mounts are collected (Automated)" {
     run bash -c "grep mounts /etc/audit/rules.d/*.rules"
     [ "$status" -eq 0 ]
+
+    UID_MIN=$(get_uid_min)
+
     for current_line in "${lines[*]}"
     do
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts"* ]]
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -S mount -F auid>=${UID_MIN} -F auid!=4294967295 -k mounts"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b32 -S mount -F auid>=${UID_MIN} -F auid!=4294967295 -k mounts"* ]]
     done
     run bash -c "auditctl -l | grep mounts"
     [ "$status" -eq 0 ]
     for current_line in "${lines[*]}"
     do
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=-1 -F key=mounts"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=-1 -F key=mounts"* ]]
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -S mount -F auid>=${UID_MIN} -F auid!=-1 -F key=mounts"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b32 -S mount -F auid>=${UID_MIN} -F auid!=-1 -F key=mounts"* ]]
     done
 }
 
 @test "4.1.13 Ensure file deletion events by users are collected (Automated)" {
     run bash -c "grep delete /etc/audit/rules.d/*.rules"
     [ "$status" -eq 0 ]
+
+    UID_MIN=$(get_uid_min)
+
     for current_line in "${lines[*]}"
     do
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete"* ]]
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=${UID_MIN} -F auid!=4294967295 -k delete"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=${UID_MIN} -F auid!=4294967295 -k delete"* ]]
     done
     run bash -c "auditctl -l | grep delete"
     [ "$status" -eq 0 ]
     for current_line in "${lines[*]}"
     do
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -S rename,unlink,unlinkat,renameat -F auid>=1000 -F auid!=-1 -F key=delete"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b32 -S unlink,rename,unlinkat,renameat -F auid>=1000 -F auid!=-1 -F key=delete"* ]]
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -S rename,unlink,unlinkat,renameat -F auid>=${UID_MIN} -F auid!=-1 -F key=delete"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b32 -S unlink,rename,unlinkat,renameat -F auid>=${UID_MIN} -F auid!=-1 -F key=delete"* ]]
     done
 }
 
@@ -277,17 +291,20 @@
 @test "4.1.15 Ensure system administrator command executions (sudo) are collected (Automated)" {
     run bash -c "grep actions /etc/audit/rules.d/*.rules"
     [ "$status" -eq 0 ]
+
+    UID_MIN=$(get_uid_min)
+
     for current_line in "${lines[*]}"
     do
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -C euid!=uid -F euid=0 -Fauid>=1000 -F auid!=4294967295 -S execve -k actions"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b32 -C euid!=uid -F euid=0 -Fauid>=1000 -F auid!=4294967295 -S execve -k actions"* ]]
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -C euid!=uid -F euid=0 -F auid>=${UID_MIN} -F auid!=4294967295 -S execve -k actions"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b32 -C euid!=uid -F euid=0 -F auid>=${UID_MIN} -F auid!=4294967295 -S execve -k actions"* ]]
     done
     run bash -c "auditctl -l | grep actions"
     [ "$status" -eq 0 ]
     for current_line in "${lines[*]}"
     do
-        [[ "$current_line" == *"-a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 -F auid>=1000 -F auid!=-1 -F key=actions"* ]] ||
-        [[ "$current_line" == *"-a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 -F auid>=1000 -F auid!=-1 -F key=actions"* ]]
+        [[ "$current_line" == *"-a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 -F auid>=${UID_MIN} -F auid!=-1 -F key=actions"* ]] ||
+        [[ "$current_line" == *"-a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 -F auid>=${UID_MIN} -F auid!=-1 -F key=actions"* ]]
     done
 }
 
