@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Inverted return status check of test 4.4 to match the correct status code returned from grep if no line was found
 
+### Fixed
+- Fix newline mistakes in script 6.2.6
+
 ## [1.0.0] - 2021-06-15
 ### Added
 - Tests for chapter 1
