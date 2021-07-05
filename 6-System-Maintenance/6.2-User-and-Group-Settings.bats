@@ -65,10 +65,6 @@
   run bash -c "awk -F: '(\$3 == 0) { print \$1 }' /etc/passwd"
   [[ "$output" == "root" ]]
   [ "$status" -eq 0 ]
-
-  run bash -c "awk -F: '(\$3 == 0) { print \$1 }' /etc/passwd | wc -l"
-  [[ "$output" == "1" ]]
-  [ "$status" -eq 0 ]
 }
 
 @test "6.2.12 Ensure root PATH Integrity (Automated)" {
@@ -103,7 +99,6 @@
 
 @test "6.2.17 Ensure shadow group is empty (Automated)" {
   run bash -c 'awk -F: '\''($1=="shadow") {print $NF}'\'' /etc/group'
-  echo "$output"
   [ "$status" -eq 0 ]
   [[ "$output" == "" ]]
 
