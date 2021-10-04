@@ -17,30 +17,30 @@
 }
 
 @test "1.6.1.3 Ensure all AppArmor Profiles are in enforce or complain mode (Automated)" {
-    run bash -c "apparmor_status | grep profiles | grep '0 profiles are loaded.'"
+    run bash -c "apparmor_status | grep profiles | grep -E '^0 profiles are loaded.'"
     [ "$status" -eq 1 ]
 
     local enforce_mode
-    run bash -c "apparmor_status | grep profiles | grep '0 profiles are in enforce mode.'"
+    run bash -c "apparmor_status | grep profiles | grep -E '^0 profiles are in enforce mode.'"
     enforce_mode=$?
 
     local complain_mode
-    run bash -c "apparmor_status | grep profiles | grep '0 profiles are in complain mode.'"
+    run bash -c "apparmor_status | grep profiles | grep -E '^0 profiles are in complain mode.'"
     complain_mode=$?
 
     [ "$enforce_mode" -eq 0 ] || [ "$complain_mode" -eq 0 ]
 
-    run bash -c "apparmor_status | grep processes | grep '0 processes are unconfined'"
+    run bash -c "apparmor_status | grep processes | grep -E '^0 processes are unconfined'"
     [ "$status" -eq 0 ]
 }
 
 @test "1.6.1.4 Ensure all AppArmor Profiles are enforcing (Automated)" {
-    run bash -c "apparmor_status | grep '0 profiles are loaded'"
+    run bash -c "apparmor_status | grep -E '^0 profiles are loaded'"
     [ "$status" -eq 1 ]
 
-    run bash -c "apparmor_status | grep profiles | grep '0 profiles are in complain mode.'"
+    run bash -c "apparmor_status | grep profiles | grep -E '^0 profiles are in complain mode.'"
     [ "$status" -eq 0 ]
 
-    run bash -c "apparmor_status | grep processes | grep '0 processes are unconfined'"
+    run bash -c "apparmor_status | grep processes | grep -E '^0 processes are unconfined'"
     [ "$status" -eq 0 ]
 }
