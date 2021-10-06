@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix newline mistakes in script 6.2.6
 - Fix newline mistakes in script 6.2.7
 - Fix additional partitions tests 1.1.10, 1.1.11, 1.1.15, 1.1.16 and 1.1.17
+- Use correct match on 0 in 1.6.1.3 and 1.6.1.4
 
 ## [1.0.0] - 2021-06-15
 ### Added
