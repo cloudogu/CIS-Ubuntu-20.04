@@ -1,8 +1,7 @@
 #!/bin/bash
 
-awk -F: '($1!~/(halt|sync|shutdown)/ && $7!~/^(\/usr)?\/sbin\/nologin(\/)?$/ && $7!~/(\/usr)?\/bin\/false(\/)?$/) { print $1 " " $6 }' /etc/passwd | while
-  read -r user dir
-do
+awk -F: '($1!~/(halt|sync|shutdown)/ && $7!~/^(\/usr)?\/sbin\/nologin(\/)?$/ && $7!~/(\/usr)?\/bin\/false(\/)?$/) { print $1 " " $6 }' /etc/passwd |
+while read -r user dir; do
   if [ -d "$dir" ]; then
     file="$dir/.netrc"
     if [ ! -h "$file" ] && [ -f "$file" ]; then

@@ -117,13 +117,13 @@
 @test "1.1.10 Ensure separate partition exists for /var (Automated)" {
     run bash -c "findmnt /var"
     [ "$status" -eq 0 ]
-    [[ "$output" = " /var "* ]]
+    [[ "$output" == *"/var "* ]]
 }
 
 @test "1.1.11 Ensure separate partition exists for /var/tmp (Automated)" {
     run bash -c "findmnt /var/tmp"
     [ "$status" -eq 0 ]
-    [[ "$output" = "/var/tmp "* ]]
+    [[ "$output" == *"/var/tmp "* ]]
 }
 
 @test "1.1.12 Ensure /var/tmp partition includes the nodev option (Automated)" {
@@ -147,19 +147,19 @@
 @test "1.1.15 Ensure separate partition exists for /var/log (Automated)" {
     run bash -c "findmnt /var/log"
     [ "$status" -eq 0 ]
-    [[ "$output" = "/var/log "* ]]
+    [[ "$output" == *"/var/log "* ]]
 }
 
 @test "1.1.16 Ensure separate partition exists for /var/log/audit (Automated)" {
     run bash -c "findmnt /var/log/audit"
     [ "$status" -eq 0 ]
-    [[ "$output" = "/var/log/audit "* ]]
+    [[ "$output" == *"/var/log/audit "* ]]
 }
 
 @test "1.1.17 Ensure separate partition exists for /home (Automated)" {
     run bash -c "findmnt /home"
     [ "$status" -eq 0 ]
-    [[ "$output" = "/home "* ]]
+    [[ "$output" == *"/home "* ]]
 }
 
 @test "1.1.18 Ensure /home partition includes the nodev option (Automated)" {
